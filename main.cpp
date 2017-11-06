@@ -2,6 +2,7 @@
 #include "common.h"
 #include "glutils.h"
 #include "window.h"
+#include "events.h"
 
 // STD
 #include <functional>
@@ -24,6 +25,8 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL_opengles2.h>
 
+#define KEY(keyname) SDLK_ ## keyname
+
 namespace {
   struct VertexAttributes {
     GLfloat position[3];
@@ -41,6 +44,12 @@ void main_loop() {
 int main() {
   if(SDL_Init(SDL_INIT_VIDEO) < 0) { FAIL("SDL Init"); }
   SDL_GL_SetSwapInterval(0);
+
+  // Initialize events
+  EventSystem inputEvents;
+  inputEvents.add(KEY(a), [](){
+    printf("Pressed key a\n");
+  });
 
   auto window = std::unique_ptr<Window>(new Window("test", 800, 600));
 
@@ -107,6 +116,11 @@ int main() {
               case (SDLK_ESCAPE):
               {
                 main_loop_running = false;
+                break;
+              }
+              default: 
+              {
+                inputEvents.fire(sym);
                 break;
               }
             }
