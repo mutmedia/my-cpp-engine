@@ -15,13 +15,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-/*
 #include "glm/vec3.hpp" // glm::vec3
 #include "glm/vec4.hpp" // glm::vec4, glm::ivec4
 #include "glm/mat4x4.hpp" // glm::mat4
 #include "glm/gtc/matrix_transform.hpp" // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include "glm/gtc/type_ptr.hpp" // glm::value_ptr
-*/
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL_opengles2.h>
@@ -32,6 +30,7 @@ namespace {
     //GLfloat color[4];
   };
 }
+
 
 using namespace std;
 function<void()> game_loop;
@@ -103,9 +102,13 @@ int main() {
         case SDL_KEYUP: 
           {
             int sym = event.key.keysym.sym;
-            if(sym == SDLK_ESCAPE) {
-              main_loop_running = false;
-              break;
+            switch (sym) 
+            {
+              case (SDLK_ESCAPE):
+              {
+                main_loop_running = false;
+                break;
+              }
             }
           }
       }
