@@ -2,11 +2,11 @@
 #include "common.h"
 #include "glutils.h"
 #include "window.h"
-#include "events.h"
+//#include "events.h"
+#include "input.h"
 
 // STD
 #include <functional>
-#include <vector>
 
 // System libraries
 #ifdef __EMSCRIPTEN__
@@ -25,13 +25,17 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL_opengles2.h>
 
-#define KEY(keyname) SDLK_ ## keyname
-
 namespace {
   struct VertexAttributes {
-    GLfloat position[3];
+    glm::vec3 position;
     //GLfloat color[4];
   };
+
+  struct Camera {
+    glm::vec3 position;
+    glm::vec3 direction;
+    glm::vec3 up;
+  } ;
 }
 
 
@@ -45,10 +49,33 @@ int main() {
   if(SDL_Init(SDL_INIT_VIDEO) < 0) { FAIL("SDL Init"); }
   SDL_GL_SetSwapInterval(0);
 
+  // Camera stuff
+  
+  Camera camera;
+  camera.position = glm::vec3(0, 0, 3);
+  camera.up = glm::vec3(0, 1, 0);
+  camera.direction = glm::vec3(0, 0, -1);
+
   // Initialize events
-  EventSystem inputEvents;
-  inputEvents.add(KEY(a), [](){
-    printf("Pressed key a\n");
+  SDL_KeyMapping km[4] = {
+      {SDLK_w, "up"},
+      {SDLK_s, "down"},
+      {SDLK_a, "left"},
+      {SDLK_d, "right"},
+  };
+  InputHandler *playerInput = new InputHandler(km, 4);
+
+  playerInput->BindAction("up", INPUT_HOLD, [&](){
+      camera.position += glm::vec3(0, 0, -0.1);
+  });
+  playerInput->BindAction("down", INPUT_HOLD, [&](){
+      camera.position += glm::vec3(0, 0, +0.1);
+  });
+  playerInput->BindAction("left", INPUT_HOLD, [&](){
+      camera.position += glm::vec3(-0.1, 0, 0);
+  });
+  playerInput->BindAction("right", INPUT_HOLD, [&](){
+      camera.position += glm::vec3(+0.1, 0, 0);
   });
 
   auto window = std::unique_ptr<Window>(new Window("test", 800, 600));
@@ -91,8 +118,10 @@ int main() {
 
   GLint attribute_position = glGetAttribLocation(shaderProgram->id, "a_position");
   GLint attribute_color = glGetAttribLocation(shaderProgram->id, "a_color");
+  GLint uniform_mvp = glGetUniformLocation(shaderProgram->id, "u_mvp");
   GLint uniform_screenSize = glGetUniformLocation(shaderProgram->id, "u_screenSize");
   GLint uniform_time = glGetUniformLocation(shaderProgram->id, "u_time");
+
 
   VertexBuffer vbo;
 
@@ -108,58 +137,55 @@ int main() {
             main_loop_running = false;
             break;
           }
-        case SDL_KEYUP: 
+        case SDL_KEYDOWN: 
           {
             int sym = event.key.keysym.sym;
             switch (sym) 
             {
               case (SDLK_ESCAPE):
-              {
-                main_loop_running = false;
-                break;
-              }
-              default: 
-              {
-                inputEvents.fire(sym);
-                break;
-              }
+                {
+                  main_loop_running = false;
+                  break;
+                }
             }
           }
       }
 
       window->ProcessEvent(&event);
+      playerInput->ProcessEvent(&event);
     }
+
+    playerInput->Update();
 
     if(window->visible) {
 
       function<void()> renderFunc = [&] {
         // Set Shapes
 
-        vector<VertexAttributes> vertices;
-        vertices.resize(6);
-        vertices[0].position[0] = -1.0f;
-        vertices[0].position[1] = -1.0f;
-        vertices[0].position[2] =  0.0f;
+        VertexAttributes vertices[6];
+        int vertices_size = 6;
+        vertices[0].position = glm::vec3( -1.0f, -1.0f, 0.0f);
+        vertices[1].position = glm::vec3( -1.0f,  1.0f, 0.0f);
+        vertices[2].position = glm::vec3(  1.0f,  1.0f, 0.0f);
+        vertices[3].position = glm::vec3(  1.0f,  1.0f, 0.0f);
+        vertices[4].position = glm::vec3( -1.0f, -1.0f, 0.0f);
+        vertices[5].position = glm::vec3(  1.0f, -1.0f, 0.0f);
 
-        vertices[1].position[0] = -1.0f;
-        vertices[1].position[1] =  1.0f;
-        vertices[1].position[2] =  0.0f;
+        // Creating MVP matrix
+        glm::mat4 Projection = glm::perspective(
+            glm::radians(45.0f),
+            (float) window->width / (float) window->height,
+            0.1f,
+            100.0f);
 
-        vertices[2].position[0] =  1.0f;
-        vertices[2].position[1] =  1.0f;
-        vertices[2].position[2] =  0.0f;
+        glm::mat4 View = glm::lookAt(
+            camera.position,
+            camera.position + camera.direction,
+            camera.up);
 
-        vertices[3].position[0] =  1.0f;
-        vertices[3].position[1] =  1.0f;
-        vertices[3].position[2] =  0.0f;
+        glm::mat4 Model = glm::mat4(1.0f);
 
-        vertices[4].position[0] = -1.0f;
-        vertices[4].position[1] = -1.0f;
-        vertices[4].position[2] =  0.0f;
-
-        vertices[5].position[0] =  1.0f;
-        vertices[5].position[1] = -1.0f;
-        vertices[5].position[2] =  0.0f;
+        glm::mat4 MVP = Projection * View * Model;
 
         // Render Shapes
         glUseProgram(shaderProgram->id);
@@ -169,8 +195,8 @@ int main() {
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo.id);
         glBufferData(GL_ARRAY_BUFFER, 
-            sizeof(VertexAttributes) * vertices.size(),
-            vertices.data(),
+            sizeof(VertexAttributes) * vertices_size,
+            vertices,
             GL_DYNAMIC_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo.id);
@@ -180,13 +206,16 @@ int main() {
             3, GL_FLOAT, GL_FALSE, sizeof(VertexAttributes),
             (GLvoid *) offsetof(VertexAttributes, position));
         /*
-        glVertexAttribPointer(attribute_color,
-            4, GL_FLOAT, GL_FALSE, sizeof(VertexAttributes),
-            (GLvoid *) offsetof(VertexAttributes, color));
-        */
+           glVertexAttribPointer(attribute_color,
+           4, GL_FLOAT, GL_FALSE, sizeof(VertexAttributes),
+           (GLvoid *) offsetof(VertexAttributes, color));
+           */
         GLERRORS("glVertexAttribPointer");
 
         // Uniforms
+        glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, &MVP[0][0]);
+        GLERRORS("glUniformMatrix4fv");
+
         GLfloat screenSize[] = {
           static_cast<GLfloat>(window->width),
           static_cast<GLfloat>(window->height)
@@ -198,7 +227,7 @@ int main() {
         glEnableVertexAttribArray(attribute_position);
         //glEnableVertexAttribArray(attribute_color);
 
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        glDrawArrays(GL_TRIANGLES, 0, vertices_size);
         glEnableVertexAttribArray(attribute_position);
         GLERRORS("draw arrays");
         glDisableVertexAttribArray(attribute_position);

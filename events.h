@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 
-typedef char Event;
+typedef int Event;
 typedef char EventRecurrence;
 typedef std::function<void()> Callback;
 typedef std::vector<Callback> CallbackList;
@@ -17,13 +17,13 @@ class EventSystem {
 public:
     EventSystem();
     ~EventSystem();
-    void add(Event e, Callback callback);
+    void Add(Event e, Callback callback);
     //void schedule(Event e, Callback callback);
     //void countdown(Event e, int count, Callback callback)
-    void fire(Event e);
+    void Fire(Event e);
 private:
-    void add_new(Event e, Callback callback, EventRecurrence recurrence); 
-    std::map<Event, CallbackList> permanent_events;
+    void AddNew(Event e, Callback callback, EventRecurrence recurrence); 
+    std::map<Event, CallbackList> permanent_events_;
 };
 
 #endif
