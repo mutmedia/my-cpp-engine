@@ -11,6 +11,7 @@ class Transform {
   public:
     Transform(vec3 position, quat rotation, vec3 scale)
       : position_(position), rotation_(rotation), scale_(scale) {}
+    Transform() : Transform(vec3(0.0), quat(), vec3(1.0)) {}
 
     vec3 position_;
     quat rotation_;
