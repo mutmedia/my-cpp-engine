@@ -4,6 +4,8 @@
 #include "window.h"
 //#include "events.h"
 #include "input.h"
+#include "transform.h"
+#include "camera.h"
 
 // STD
 #include <functional>
@@ -21,6 +23,8 @@
 #include "glm/mat4x4.hpp" // glm::mat4
 #include "glm/gtc/matrix_transform.hpp" // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include "glm/gtc/type_ptr.hpp" // glm::value_ptr
+#include "glm/gtc/quaternion.hpp" // Quaternioon
+#include "glm/gtx/quaternion.hpp"
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL_opengles2.h>
@@ -30,12 +34,6 @@ namespace {
     glm::vec3 position;
     //GLfloat color[4];
   };
-
-  struct Camera {
-    glm::vec3 position;
-    glm::vec3 direction;
-    glm::vec3 up;
-  } ;
 }
 
 
@@ -51,31 +49,49 @@ int main() {
 
   // Camera stuff
   
-  Camera camera;
-  camera.position = glm::vec3(0, 0, 3);
-  camera.up = glm::vec3(0, 1, 0);
-  camera.direction = glm::vec3(0, 0, -1);
+  Camera camera(Transform(
+          glm::vec3(0, 0, 3),
+          glm::quat(glm::vec3(0, 240, 0)),
+          glm::vec3(1)
+        ));
+  printf("Initia angle 240\n");
 
   // Initialize events
-  SDL_KeyMapping km[4] = {
+  SDL_KeyMapping km[8] = {
       {SDLK_w, "up"},
       {SDLK_s, "down"},
       {SDLK_a, "left"},
       {SDLK_d, "right"},
+      {SDLK_RIGHT, "yaw-"},
+      {SDLK_LEFT, "yaw+"},
+      {SDLK_UP, "pitch-"},
+      {SDLK_DOWN, "pitch+"},
   };
-  InputHandler *playerInput = new InputHandler(km, 4);
+  InputHandler *playerInput = new InputHandler(km, 8);
 
   playerInput->BindAction("up", INPUT_HOLD, [&](){
-      camera.position += glm::vec3(0, 0, -0.1);
+      camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(0, 0, +0.1);
   });
   playerInput->BindAction("down", INPUT_HOLD, [&](){
-      camera.position += glm::vec3(0, 0, +0.1);
+      camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(0, 0, -0.1);
   });
   playerInput->BindAction("left", INPUT_HOLD, [&](){
-      camera.position += glm::vec3(-0.1, 0, 0);
+      camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(+0.1, 0, 0);
   });
   playerInput->BindAction("right", INPUT_HOLD, [&](){
-      camera.position += glm::vec3(+0.1, 0, 0);
+      camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(-0.1, 0, 0);
+  });
+  playerInput->BindAction("yaw+", INPUT_HOLD, [&](){
+      camera.transform_.rotation_ *= glm::quat(glm::vec3(0, +0.05, 0));
+  });
+  playerInput->BindAction("yaw-", INPUT_HOLD, [&](){
+      camera.transform_.rotation_ *= glm::quat(glm::vec3(0, -0.05, 0));
+  });
+  playerInput->BindAction("pitch-", INPUT_HOLD, [&](){
+      camera.transform_.rotation_ *= glm::quat(glm::vec3(-0.05, 0, 0));
+  });
+  playerInput->BindAction("pitch+", INPUT_HOLD, [&](){
+      camera.transform_.rotation_ *= glm::quat(glm::vec3(+0.05, 0, 0));
   });
 
   auto window = std::unique_ptr<Window>(new Window("test", 800, 600));
@@ -178,10 +194,7 @@ int main() {
             0.1f,
             100.0f);
 
-        glm::mat4 View = glm::lookAt(
-            camera.position,
-            camera.position + camera.direction,
-            camera.up);
+        glm::mat4 View = camera.GetViewMatrix();
 
         glm::mat4 Model = glm::mat4(1.0f);
 
