@@ -1,6 +1,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <vector>
+
 #include "events.h"
 union SDL_Event;
 
@@ -18,16 +20,26 @@ enum InputType {
 
 class InputHandler {
   public:
-    InputHandler(SDL_KeyMapping *keymapping, const int mappingsize) : key_mapping_(keymapping), mapping_size_(mappingsize) { };
+    InputHandler(const char * name, SDL_KeyMapping *keymapping, const int mappingsize);
+    void BindAction(const char * name, const InputType type, const std::function<void()> callback);
     const void ProcessEvent(const SDL_Event* e);
     const void Update();
-    void BindAction(const char * name, const InputType type, const std::function<void()> callback);
     // TODO: allow key remapping
   private: 
     const int KeyTypeToEvent(const int key, const InputType type);  
     EventSystem input_events_;
     SDL_KeyMapping * key_mapping_;
     int mapping_size_;
+    const char * name_;
 };
+
+namespace Input {
+  static void RegisterInputHandler(InputHandler * handler);
+  void Update();
+  void ProcessEvent(const SDL_Event * e);
+
+  static std::vector<InputHandler *> handlers;
+  // TODO: might be a good idea to clear/free things allocated here
+}
 
 #endif

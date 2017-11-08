@@ -10,8 +10,11 @@ struct WindowImpl;
 
 class Window {
   public:
-    Window(const char* name, int w, int h);
     ~Window();
+
+    static Window * Instance();
+    static void Initialize(const char* name, int w, int h);
+
     void Render(std::function<void()> renderFunc);
     void HandleResize();
     //void AddLayer();
@@ -22,7 +25,9 @@ class Window {
     int width, height;
   private:
     std::unique_ptr<WindowImpl> self;
+    Window(const char* name, int w, int h);
 };
 
+static Window * window_instance = NULL;
 
 #endif

@@ -1,8 +1,9 @@
 #include "time.h"
+#include "stdio.h"
 
 void Time::Update(const float totaltime) {
     delta_time = totaltime - total_time;
-    total_time = total_time;
+    total_time = totaltime;
 }
 
 void Time::Init(const float totaltime) {

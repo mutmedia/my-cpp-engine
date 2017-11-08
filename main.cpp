@@ -4,10 +4,9 @@
 #include "window.h"
 //#include "events.h"
 #include "time.h"
-
+#include "game.h"
 #include "input.h"
-#include "transform.h"
-#include "camera.h"
+
 
 // STD
 #include <functional>
@@ -51,7 +50,7 @@ int main() {
     FAIL("SDL Init");
   }
   SDL_GL_SetSwapInterval(0);
-  auto window = std::unique_ptr<Window>(new Window("test", 800, 600));
+  Window::Initialize("test", 800, 600);
 
   Time::Init(SDL_GetTicks());
 
@@ -102,57 +101,10 @@ int main() {
 
   bool main_loop_running = true;
 
+  Game * game = new Game();
+
   // Proper Game initialization
-
-  // Camera stuff
-  Camera camera(
-      45.0f,
-      (float)window->width / (float)window->height,
-      0.1f,
-      100.0f);
-  camera.transform_.position_ = glm::vec3(0, 0, 3);
-  camera.transform_.rotation_ = glm::quat(glm::vec3(0, 150, 0));
-      
-  printf("Initia angle 150\n");
-
-  // Initialize events
-  SDL_KeyMapping km[8] = {
-      {SDLK_w, "up"},
-      {SDLK_s, "down"},
-      {SDLK_a, "left"},
-      {SDLK_d, "right"},
-      {SDLK_RIGHT, "yaw-"},
-      {SDLK_LEFT, "yaw+"},
-      {SDLK_UP, "pitch-"},
-      {SDLK_DOWN, "pitch+"},
-  };
-  InputHandler *playerInput = new InputHandler(km, 8);
-
-  float speed = 4.0f;
-  playerInput->BindAction("up", INPUT_HOLD, [&]() {
-    camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(0, 0, +1) * speed * Time::DeltaTime();
-  });
-  playerInput->BindAction("down", INPUT_HOLD, [&]() {
-    camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(0, 0, -1) * speed * Time::DeltaTime();
-  });
-  playerInput->BindAction("left", INPUT_HOLD, [&]() {
-    camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(+1, 0, 0) * speed * Time::DeltaTime();
-  });
-  playerInput->BindAction("right", INPUT_HOLD, [&]() {
-    camera.transform_.position_ += camera.transform_.rotation_ * glm::vec3(-1, 0, 0) * speed * Time::DeltaTime();
-  });
-  playerInput->BindAction("yaw+", INPUT_HOLD, [&]() {
-    camera.transform_.rotation_ *= glm::quat(glm::vec3(0, +0.05, 0));
-  });
-  playerInput->BindAction("yaw-", INPUT_HOLD, [&]() {
-    camera.transform_.rotation_ *= glm::quat(glm::vec3(0, -0.05, 0));
-  });
-  playerInput->BindAction("pitch-", INPUT_HOLD, [&]() {
-    camera.transform_.rotation_ *= glm::quat(glm::vec3(-0.05, 0, 0));
-  });
-  playerInput->BindAction("pitch+", INPUT_HOLD, [&]() {
-    camera.transform_.rotation_ *= glm::quat(glm::vec3(+0.05, 0, 0));
-  });
+  game->Initialize();
 
   game_loop = [&] {
     // Main loop implementation
@@ -182,13 +134,14 @@ int main() {
       }
       }
 
-      window->ProcessEvent(&event);
-      playerInput->ProcessEvent(&event);
+      Window::Instance()->ProcessEvent(&event);
+      Input::ProcessEvent(&event);
     }
 
-    playerInput->Update();
+    Input::Update();
+    game->Update();
 
-    if (window->visible)
+    if (Window::Instance()->visible)
     {
 
       function<void()> renderFunc = [&] {
@@ -281,7 +234,7 @@ int main() {
         */
 
         // Creating MVP matrix
-        glm::mat4 ViewProjection = camera.GetViewProjectionMatrix();
+        glm::mat4 ViewProjection = game->main_camera_->GetViewProjectionMatrix();
 
         glm::mat4 Model = glm::mat4(1.0f);
 
@@ -344,12 +297,12 @@ int main() {
         GLERRORS("glUniformMatrix4fv");
 
         GLfloat screenSize[] = {
-            static_cast<GLfloat>(window->width),
-            static_cast<GLfloat>(window->height)};
+            static_cast<GLfloat>(Window::Instance()->width),
+            static_cast<GLfloat>(Window::Instance()->height)};
         glUniform2fv(uniform_screenSize, 1, screenSize);
         GLERRORS("glUniform2fv");
 
-        glUniform1f(uniform_time, (float)window->FRAME);
+        glUniform1f(uniform_time, (float)Window::Instance()->FRAME);
 
         glDrawArrays(GL_TRIANGLES, 0, vertices_size);
         glDisableVertexAttribArray(attribute_position);
@@ -357,7 +310,7 @@ int main() {
         glDisable(GL_BLEND);
       };
 
-      window->Render(renderFunc);
+      Window::Instance()->Render(renderFunc);
     }
   };
 
@@ -370,7 +323,6 @@ int main() {
   }
 #endif
 
-  window = nullptr;
   SDL_Quit();
 }
 

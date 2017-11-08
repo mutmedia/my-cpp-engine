@@ -40,12 +40,26 @@ Window::Window(const char* name, int w, int h)
   HandleResize();
 }
 
-Window::~Window() {}
+Window::~Window() {
+  free(window_instance);
+}
 
 void Window::HandleResize() {
   self->context_initialized = false;
   SDL_GL_GetDrawableSize(self->window, &width, &height);
   glViewport(0, 0, width, height);
+}
+
+void Window::Initialize(const char* name, int w, int h) {
+  window_instance = new Window(name, w, h);
+}
+
+
+Window * Window::Instance() {
+  if(window_instance == NULL) {
+    printf("ERROR: window not initialized");
+  }
+  return window_instance;
 }
 
 void Window::Render(std::function<void()> renderFunc) {

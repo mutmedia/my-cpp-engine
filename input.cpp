@@ -1,8 +1,14 @@
 #include "input.h"
 
 #include <string.h>
+#include <algorithm>
 
 #include "SDL2/SDL.h"
+
+InputHandler::InputHandler(const char * name, SDL_KeyMapping *keymapping, const int mappingsize) :
+  name_(name), key_mapping_(keymapping), mapping_size_(mappingsize) {
+  Input::RegisterInputHandler(this);
+}  
 
 const void InputHandler::ProcessEvent(const SDL_Event* e) {
   switch(e->type) {
@@ -27,7 +33,7 @@ const void InputHandler::Update() {
   for (int i = 0; i < mapping_size_; i++) {
     int k = key_mapping_[i].key;
     if(keyboard[SDL_GetScancodeFromKey(k)]) {
-        input_events_.Fire(KeyTypeToEvent(k, INPUT_HOLD));
+      input_events_.Fire(KeyTypeToEvent(k, INPUT_HOLD));
     }
   }
 }
@@ -43,4 +49,21 @@ void InputHandler::BindAction(const char * name, const InputType type, const std
 const int InputHandler::KeyTypeToEvent(const int key, const InputType type) {
   int a =  ((int)type << 8) | key;
   return a;
+}
+
+static void Input::RegisterInputHandler(InputHandler * handler) {
+  handlers.push_back(handler);
+}
+
+void Input::Update() {
+  int i = 0;
+  std::for_each(handlers.begin(), handlers.end(), [&](InputHandler * inputhandler) {
+      inputhandler->Update();
+      });
+}
+
+void Input::ProcessEvent(const SDL_Event * e) {
+  std::for_each(handlers.begin(), handlers.end(), [&](InputHandler * inputhandler) {
+      inputhandler->ProcessEvent(e);
+      });
 }
