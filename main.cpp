@@ -6,10 +6,12 @@
 #include "time.h"
 #include "game.h"
 #include "input.h"
+#include "mesh.h"
 
 
 // STD
 #include <functional>
+#include <math.h>
 
 // System libraries
 #ifdef __EMSCRIPTEN__
@@ -43,6 +45,47 @@ function<void()> game_loop;
 void main_loop() { 
   game_loop(); 
 }
+
+static const Vertex vertex_data[] = {
+  {{-1.0f, -1.0f, -1.0f,},	 {0.583f, 0.771f, 0.014f,}},
+  {{-1.0f, -1.0f, +1.0f,},	 {0.609f, 0.115f, 0.436f,}},
+  {{-1.0f, +1.0f, +1.0f,},	 {0.327f, 0.483f, 0.844f,}},
+  {{+1.0f, +1.0f, -1.0f,},	 {0.822f, 0.569f, 0.201f,}},
+  {{-1.0f, -1.0f, -1.0f,},	 {0.435f, 0.602f, 0.223f,}},
+  {{-1.0f, +1.0f, -1.0f,},	 {0.310f, 0.747f, 0.185f,}},
+  {{+1.0f, -1.0f, +1.0f,},	 {0.597f, 0.770f, 0.761f,}},
+  {{-1.0f, -1.0f, -1.0f,},	 {0.559f, 0.436f, 0.730f,}},
+  {{+1.0f, -1.0f, -1.0f,},	 {0.359f, 0.583f, 0.152f,}},
+  {{+1.0f, +1.0f, -1.0f,},	 {0.483f, 0.596f, 0.789f,}},
+  {{+1.0f, -1.0f, -1.0f,},	 {0.559f, 0.861f, 0.639f,}},
+  {{-1.0f, -1.0f, -1.0f,},	 {0.195f, 0.548f, 0.859f,}},
+  {{-1.0f, -1.0f, -1.0f,},	 {0.014f, 0.184f, 0.576f,}},
+  {{-1.0f, +1.0f, +1.0f,},	 {0.771f, 0.328f, 0.970f,}},
+  {{-1.0f, +1.0f, -1.0f,},	 {0.406f, 0.615f, 0.116f,}},
+  {{+1.0f, -1.0f, +1.0f,},	 {0.676f, 0.977f, 0.133f,}},
+  {{-1.0f, -1.0f, +1.0f,},	 {0.971f, 0.572f, 0.833f,}},
+  {{-1.0f, -1.0f, -1.0f,},	 {0.140f, 0.616f, 0.489f,}},
+  {{-1.0f, +1.0f, +1.0f,},	 {0.997f, 0.513f, 0.064f,}},
+  {{-1.0f, -1.0f, +1.0f,},	 {0.945f, 0.719f, 0.592f,}},
+  {{+1.0f, -1.0f, +1.0f,},	 {0.543f, 0.021f, 0.978f,}},
+  {{+1.0f, +1.0f, +1.0f,},	 {0.279f, 0.317f, 0.505f,}},
+  {{+1.0f, -1.0f, -1.0f,},	 {0.167f, 0.620f, 0.077f,}},
+  {{+1.0f, +1.0f, -1.0f,},	 {0.347f, 0.857f, 0.137f,}},
+  {{+1.0f, -1.0f, -1.0f,},	 {0.055f, 0.953f, 0.042f,}},
+  {{+1.0f, +1.0f, +1.0f,},	 {0.714f, 0.505f, 0.345f,}},
+  {{+1.0f, -1.0f, +1.0f,},	 {0.783f, 0.290f, 0.734f,}},
+  {{+1.0f, +1.0f, +1.0f,},	 {0.722f, 0.645f, 0.174f,}},
+  {{+1.0f, +1.0f, -1.0f,},	 {0.302f, 0.455f, 0.848f,}},
+  {{-1.0f, +1.0f, -1.0f,},	 {0.225f, 0.587f, 0.040f,}},
+  {{+1.0f, +1.0f, +1.0f,},	 {0.517f, 0.713f, 0.338f,}},
+  {{-1.0f, +1.0f, -1.0f,},	 {0.053f, 0.959f, 0.120f,}},
+  {{-1.0f, +1.0f, +1.0f,},	 {0.393f, 0.621f, 0.362f,}},
+  {{+1.0f, +1.0f, +1.0f,},	 {0.673f, 0.211f, 0.457f,}},
+  {{-1.0f, +1.0f, +1.0f,},	 {0.820f, 0.883f, 0.371f,}},
+  {{+1.0f, -1.0f, +1.0f,},	 {0.982f, 0.099f, 0.879f}}
+};
+int vertices_size = 12 * 3;
+
 
 int main() {
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -103,8 +146,10 @@ int main() {
 
   Game * game = new Game();
 
+
   // Proper Game initialization
   game->Initialize();
+  Mesh cube(vertex_data, vertices_size);
 
   game_loop = [&] {
     // Main loop implementation
@@ -115,23 +160,23 @@ int main() {
     {
       switch (event.type)
       {
-      case SDL_QUIT:
-      {
-        main_loop_running = false;
-        break;
-      }
-      case SDL_KEYDOWN:
-      {
-        int sym = event.key.keysym.sym;
-        switch (sym)
-        {
-        case (SDLK_ESCAPE):
-        {
-          main_loop_running = false;
-          break;
-        }
-        }
-      }
+        case SDL_QUIT:
+          {
+            main_loop_running = false;
+            break;
+          }
+        case SDL_KEYDOWN:
+          {
+            int sym = event.key.keysym.sym;
+            switch (sym)
+            {
+              case (SDLK_ESCAPE):
+                {
+                  main_loop_running = false;
+                  break;
+                }
+            }
+          }
       }
 
       Window::Instance()->ProcessEvent(&event);
@@ -145,98 +190,13 @@ int main() {
     {
 
       function<void()> renderFunc = [&] {
-        // Set Shapes
-        VertexAttributes vertices[6];
-        int vertices_size = 12 * 3;
-        static const GLfloat g_vertex_buffer_data[] = {
-            -1.0f, -1.0f, -1.0f, // triangle 1 : begin
-            -1.0f, -1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f, // triangle 1 : end
-            1.0f, 1.0f, -1.0f, // triangle 2 : begin
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, -1.0f, // triangle 2 : end
-            1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, 1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, -1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, 1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, -1.0f,
-            -1.0f, 1.0f, -1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, -1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, -1.0f, 1.0f};
-
-        static const GLfloat g_color_buffer_data[] = {
-            0.583f, 0.771f, 0.014f,
-            0.609f, 0.115f, 0.436f,
-            0.327f, 0.483f, 0.844f,
-            0.822f, 0.569f, 0.201f,
-            0.435f, 0.602f, 0.223f,
-            0.310f, 0.747f, 0.185f,
-            0.597f, 0.770f, 0.761f,
-            0.559f, 0.436f, 0.730f,
-            0.359f, 0.583f, 0.152f,
-            0.483f, 0.596f, 0.789f,
-            0.559f, 0.861f, 0.639f,
-            0.195f, 0.548f, 0.859f,
-            0.014f, 0.184f, 0.576f,
-            0.771f, 0.328f, 0.970f,
-            0.406f, 0.615f, 0.116f,
-            0.676f, 0.977f, 0.133f,
-            0.971f, 0.572f, 0.833f,
-            0.140f, 0.616f, 0.489f,
-            0.997f, 0.513f, 0.064f,
-            0.945f, 0.719f, 0.592f,
-            0.543f, 0.021f, 0.978f,
-            0.279f, 0.317f, 0.505f,
-            0.167f, 0.620f, 0.077f,
-            0.347f, 0.857f, 0.137f,
-            0.055f, 0.953f, 0.042f,
-            0.714f, 0.505f, 0.345f,
-            0.783f, 0.290f, 0.734f,
-            0.722f, 0.645f, 0.174f,
-            0.302f, 0.455f, 0.848f,
-            0.225f, 0.587f, 0.040f,
-            0.517f, 0.713f, 0.338f,
-            0.053f, 0.959f, 0.120f,
-            0.393f, 0.621f, 0.362f,
-            0.673f, 0.211f, 0.457f,
-            0.820f, 0.883f, 0.371f,
-            0.982f, 0.099f, 0.879f};
-
-        /*
-        vertices[0].position = glm::vec3(-1.0f, -1.0f, 0.0f);
-        vertices[1].position = glm::vec3(-1.0f, 1.0f, 0.0f);
-        vertices[2].position = glm::vec3(1.0f, 1.0f, 0.0f);
-        vertices[3].position = glm::vec3(1.0f, 1.0f, 0.0f);
-        vertices[4].position = glm::vec3(-1.0f, -1.0f, 0.0f);
-        vertices[5].position = glm::vec3(1.0f, -1.0f, 0.0f);
-        */
 
         // Creating MVP matrix
         glm::mat4 ViewProjection = game->main_camera_->GetViewProjectionMatrix();
 
         glm::mat4 Model = glm::mat4(1.0f);
+
+        glm::mat4 Translation = glm::translate(glm::mat4(), 3.0f* sin(glm::vec3(0.1f * (float)Window::Instance()->FRAME)));
 
         glm::mat4 MVP = ViewProjection * Model;
 
@@ -250,63 +210,35 @@ int main() {
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
- 
+
         glEnable(GL_CULL_FACE);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Sending Attributes
-        GLuint vertexbuffer;
-        glGenBuffers(1, &vertexbuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-        glBufferData(GL_ARRAY_BUFFER,
-                     sizeof(g_vertex_buffer_data),
-                     g_vertex_buffer_data,
-                     GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(attribute_position);
-        glVertexAttribPointer(attribute_position,
-                              3, GL_FLOAT, GL_FALSE, 0,
-                              (void *)0);
-
-        GLuint colorbuffer;
-        glGenBuffers(1, &colorbuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-        glBufferData(GL_ARRAY_BUFFER,
-                     sizeof(g_color_buffer_data),
-                     g_color_buffer_data,
-                     GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(attribute_color);
-        glVertexAttribPointer(attribute_color,
-                              3, GL_FLOAT, GL_FALSE, 0,
-                              (void *)0);
-
-        /* if using AoS
-        glEnableVertexAttribArray(attribute_position);
-        glEnableVertexAttribArray(attribute_color);
-        glVertexAttribPointer(attribute_position,
-          3, GL_FLOAT, GL_FALSE, sizeof(VertexAttributes),
-          (GLvoid *)offsetof(VertexAttributes, position));
-        glVertexAttribPointer(attribute_color,
-          4, GL_FLOAT, GL_FALSE, sizeof(VertexAttributes),
-          (GLvoid *) offsetof(VertexAttributes, color));
-        */
-        GLERRORS("glVertexAttribPointer");
 
         // Uniforms
         glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, &MVP[0][0]);
         GLERRORS("glUniformMatrix4fv");
 
         GLfloat screenSize[] = {
-            static_cast<GLfloat>(Window::Instance()->width),
-            static_cast<GLfloat>(Window::Instance()->height)};
+          static_cast<GLfloat>(Window::Instance()->width),
+          static_cast<GLfloat>(Window::Instance()->height)};
         glUniform2fv(uniform_screenSize, 1, screenSize);
         GLERRORS("glUniform2fv");
 
         glUniform1f(uniform_time, (float)Window::Instance()->FRAME);
 
-        glDrawArrays(GL_TRIANGLES, 0, vertices_size);
-        glDisableVertexAttribArray(attribute_position);
-        glDisableVertexAttribArray(attribute_color);
+        MVP = ViewProjection * Model;
+        cube.Render();
+
+        Model = Translation;
+        MVP = ViewProjection * Model;
+        glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, &MVP[0][0]);
+        cube.Render();
+
+
+        glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, &MVP[0][0]);
+        GLERRORS("glUniformMatrix4fv");
+
         glDisable(GL_BLEND);
       };
 
