@@ -1,6 +1,6 @@
 #include "window.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "glutils.h"
 
 #include <vector>

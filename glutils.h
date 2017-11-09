@@ -1,8 +1,8 @@
 #ifndef GLUTILS_H
 #define GLUTILS_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengles2.h>
+#include <SDL.h>
+#include <SDL_opengles2.h>
 
 #include "common.h"
 

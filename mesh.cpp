@@ -5,7 +5,7 @@
 Mesh::Mesh(const Vertex * vertexdata, int verticessize) :
   vertex_data_(vertexdata), vertices_size_(verticessize) {
     glGenBuffers(1, &vertex_buffer_);
-  }
+}
 
 Mesh::~Mesh() {
   glDeleteBuffers(1, &vertex_buffer_);
