@@ -74,12 +74,13 @@ void Game::Update() {
 }
 
 void Game::Initialize() {
+  InputHandler *playerInput = new InputHandler("Player Input", km, 9);
+  cube = new Mesh(vertex_data, vertices_size);
+
   // Camera stuff
-  float aspectratio = (float)Window::Instance()->width / (float)Window::Instance()->height;
-  printf("Aspect ratio: %f\n", aspectratio);
   camera = new Camera(
       45.0f,
-      aspectratio,
+      Window::Instance()->aspect_ratio,
       0.1f,
       100.0f);
 
@@ -87,15 +88,13 @@ void Game::Initialize() {
   camera->transform_.rotation_ = glm::quat(glm::vec3(0, glm::pi<float>(), 0));
 
   main_camera_ = camera;
-      
-    InputHandler *playerInput = new InputHandler("Player Input", km, 9);
 
-  cube = new Mesh(vertex_data, vertices_size);
 
   playerInput->BindAction("action", INPUT_HOLD, [&]() {
     auto rend = new MeshRenderer(cube);
     rend->transform_.position_ = camera->transform_.position_;
   });
+
   playerInput->BindAction("up", INPUT_HOLD, [&]() {
     camera->transform_.position_ += camera->transform_.rotation_ * glm::vec3(0, 0, +1) * linear_speed * Time::DeltaTime();
   });

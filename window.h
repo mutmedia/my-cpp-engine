@@ -20,6 +20,8 @@ class Window {
     //void AddLayer();
     void ProcessEvent(SDL_Event* event);
 
+    float aspect_ratio() const;
+
     static int FRAME;
     bool visible;
     int width, height;

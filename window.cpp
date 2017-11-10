@@ -96,3 +96,6 @@ void Window::ProcessEvent(SDL_Event* event) {
   }
 }
 
+float Window::aspect_ratio() const {
+  return (float)width/(float)height;
+}
