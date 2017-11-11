@@ -14,16 +14,14 @@ Mesh::Mesh(const Vertex *vertexdata, int verticessize)
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (GLvoid *)offsetof(Vertex, position));
 
-  /*
-glEnableVertexAttribArray(1);
-glVertexAttribPointer(1,
-  3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-  (GLvoid *)offsetof(Vertex, color));
-*/
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (GLvoid *)offsetof(Vertex, normal));
 
   GLERRORS("mesh attrib array");
 
   glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(1);
 }
 
 Mesh::~Mesh() { glDeleteBuffers(1, &vertex_buffer_); }
@@ -39,17 +37,14 @@ void Mesh::Render() const {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (GLvoid *)offsetof(Vertex, position));
 
-  /*
-glEnableVertexAttribArray(1);
-glVertexAttribPointer(1,
-  3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-  (GLvoid *)offsetof(Vertex, color));
-*/
-
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                        (GLvoid *)offsetof(Vertex, normal));
   GLERRORS("mesh attrib array");
 
   glDrawArrays(GL_TRIANGLES, 0, vertices_size_);
   GLERRORS("mesh draw");
+
   glDisableVertexAttribArray(0);
-  // glDisableVertexAttribArray(1);
+  glDisableVertexAttribArray(1);
 }

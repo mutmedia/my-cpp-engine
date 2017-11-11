@@ -2,10 +2,10 @@
 #define TIME_H
 
 namespace Time {
-    void Init(const float totaltime);
-    void Update(const float totaltime);
-    float GetDelta();
-    float GetTotal();
-};
+void Init(const float totaltime);
+void Update(const float totaltime);
+float GetDelta();
+float GetTotal();
+}; // namespace Time
 
 #endif

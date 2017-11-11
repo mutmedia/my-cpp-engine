@@ -159,7 +159,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -173,10 +173,12 @@ int main() {
         glUniform1f(shaderProgram->uniform_time(), (float)Window::Instance()->FRAME);
 
         game->Draw();
+
         glDisable(GL_BLEND);
       };
 
       Window::Instance()->Render(renderFunc);
+      Graphics::Clear();
     }
   };
 
