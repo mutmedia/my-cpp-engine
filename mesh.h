@@ -10,7 +10,7 @@ class Mesh {
     Mesh(const Vertex * vertexdata, int verticessize);
     ~Mesh();
 
-    void Render();
+    void Render() const;
   private:
     const Vertex * vertex_data_;
     int vertices_size_;

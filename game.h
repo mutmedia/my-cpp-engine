@@ -6,7 +6,8 @@
 class Game {
   public:
     void Update();
-    void Initialize();
+    void Load();
+    void Draw();
     Camera * main_camera_;
   private:
 };

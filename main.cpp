@@ -107,7 +107,7 @@ int main() {
   Game * game = new Game();
 
   // Proper Game initialization
-  game->Initialize();
+  game->Load();
 
   game_loop = [&] {
     // Main loop implementation
