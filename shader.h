@@ -3,19 +3,25 @@
 
 #include <SDL_opengles2.h>
 
-class Shader {
-    // default uniforms
+#include "common.h"
 
+class Shader : nocopy {
     public:
-    GLint uniform_time() { return uniform_time_;} 
-    GLint uniform_screenSize() { return uniform_screenSize_;} 
-    GLint uniform_mvp() { return uniform_mvp_; }
+        Shader(const char* vert, const char* frag);
+        ~Shader();
+
+        GLint uniform_time() { return uniform_time_; } 
+        GLint uniform_screenSize() { return uniform_screenSize_; } 
+        GLint uniform_mvp() { return uniform_mvp_; }
+        GLuint id() { return id_; }
 
     private:
-    GLint uniform_time_ = 2;
-    GLint uniform_screenSize_ = 1;
-    GLint uniform_mvp_ = 0;
+        GLuint id_;
 
-}
+        // default uniforms
+        GLint uniform_time_;
+        GLint uniform_screenSize_;
+        GLint uniform_mvp_;
+};
 
 #endif

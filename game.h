@@ -8,7 +8,6 @@ class Game {
     void Update();
     void Load();
     void Draw();
-    Camera * main_camera_;
   private:
 };
 

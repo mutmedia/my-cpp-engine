@@ -8,12 +8,6 @@
 
 void GLERRORS(const char* label);
 
-struct ShaderProgram : nocopy {
-  GLuint id;
-  ShaderProgram(const char* vert, const char* frag);
-  ~ShaderProgram();
-};
-
 struct VertexBuffer : nocopy {
   GLuint id;
   VertexBuffer();

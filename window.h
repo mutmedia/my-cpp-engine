@@ -30,6 +30,5 @@ class Window {
     Window(const char* name, int w, int h);
 };
 
-static Window * window_instance = NULL;
 
 #endif

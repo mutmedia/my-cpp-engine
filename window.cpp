@@ -5,6 +5,10 @@
 
 #include <vector>
 
+namespace {
+  Window * window_instance = NULL;
+}
+
 struct WindowImpl {
   SDL_Window* window;
   bool context_initialized;

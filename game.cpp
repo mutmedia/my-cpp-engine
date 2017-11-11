@@ -5,13 +5,9 @@
 #include "transform.h"
 #include "camera.h"
 #include "window.h"
-#include "meshRenderer.h"
+#include "graphics.h"
 
 #include <SDL.h>
-
-Mesh * cube;
-
-
 
 // Initialize events
 SDL_KeyMapping km[9] = {
@@ -26,58 +22,63 @@ SDL_KeyMapping km[9] = {
     {SDLK_SPACE, "action"},
 };
 
-Camera * camera;
+Camera * my_camera;
 float linear_speed = 3.0f;
 float angular_speed = 1.0f;
 
+glm::vec3 cube_position;
+glm::vec3 cube_position_2;
+
 void Game::Update() {
-  auto pos = main_camera_->transform_.position_;
+  cube_position.y = 5 * sin(Time::GetTotal() / 10);
+  cube_position_2.x = 3;
+  cube_position_2.y = 10 * sin(Time::GetTotal() + 2);
+}
+
+
+void Game::Draw() {
+  Graphics::Cube(cube_position);
+  Graphics::Cube(cube_position_2);
 }
 
 void Game::Load() {
   InputHandler *playerInput = new InputHandler("Player Input", km, 9);
-  cube = new Mesh(vertex_data, vertices_size);
 
   // Camera stuff
-  camera = new Camera(
+  my_camera = new Camera(
       45.0f,
-      Window::Instance()->aspect_ratio,
+      Window::Instance()->aspect_ratio(),
       0.1f,
       100.0f);
 
-  camera->transform_.position_ = glm::vec3(0, 0, 3);
-  camera->transform_.rotation_ = glm::quat(glm::vec3(0, glm::pi<float>(), 0));
+  my_camera->transform_.position_ = glm::vec3(0, 0, 5);
+  my_camera->transform_.rotation_ = glm::quat(glm::vec3(0, glm::pi<float>(), 0));
 
-  main_camera_ = camera;
-
-  playerInput->BindAction("action", INPUT_HOLD, [&]() {
-    auto rend = new MeshRenderer(cube);
-    rend->transform_.position_ = camera->transform_.position_;
-  });
+  Graphics::camera = my_camera;
 
   playerInput->BindAction("up", INPUT_HOLD, [&]() {
-    camera->transform_.position_ += camera->transform_.rotation_ * glm::vec3(0, 0, +1) * linear_speed * Time::DeltaTime();
+    my_camera->transform_.position_ += my_camera->transform_.rotation_ * glm::vec3(0, 0, +1) * linear_speed * Time::GetDelta();
   });
   playerInput->BindAction("down", INPUT_HOLD, [&]() {
-    camera->transform_.position_ += camera->transform_.rotation_ * glm::vec3(0, 0, -1) * linear_speed * Time::DeltaTime();
+    my_camera->transform_.position_ += my_camera->transform_.rotation_ * glm::vec3(0, 0, -1) * linear_speed * Time::GetDelta();
   });
   playerInput->BindAction("left", INPUT_HOLD, [&]() {
-    camera->transform_.position_ += camera->transform_.rotation_ * glm::vec3(+1, 0, 0) * linear_speed * Time::DeltaTime();
+    my_camera->transform_.position_ += my_camera->transform_.rotation_ * glm::vec3(+1, 0, 0) * linear_speed * Time::GetDelta();
   });
   playerInput->BindAction("right", INPUT_HOLD, [&]() {
-    camera->transform_.position_ += camera->transform_.rotation_ * glm::vec3(-1, 0, 0) * linear_speed * Time::DeltaTime();
+    my_camera->transform_.position_ += my_camera->transform_.rotation_ * glm::vec3(-1, 0, 0) * linear_speed * Time::GetDelta();
   });
   playerInput->BindAction("yaw+", INPUT_HOLD, [&]() {
-    camera->transform_.rotation_ *= glm::quat(glm::vec3(0, +1, 0) * angular_speed * Time::DeltaTime());
+    my_camera->transform_.rotation_ *= glm::quat(glm::vec3(0, +1, 0) * angular_speed * Time::GetDelta());
   });
   playerInput->BindAction("yaw-", INPUT_HOLD, [&]() {
-    camera->transform_.rotation_ *= glm::quat(glm::vec3(0, -1, 0) * angular_speed * Time::DeltaTime());
+    my_camera->transform_.rotation_ *= glm::quat(glm::vec3(0, -1, 0) * angular_speed * Time::GetDelta());
   });
   playerInput->BindAction("pitch-", INPUT_HOLD, [&]() {
-    camera->transform_.rotation_ *= glm::quat(glm::vec3(-1, 0, 0) * angular_speed * Time::DeltaTime());
+    my_camera->transform_.rotation_ *= glm::quat(glm::vec3(-1, 0, 0) * angular_speed * Time::GetDelta());
   });
   playerInput->BindAction("pitch+", INPUT_HOLD, [&]() {
-    camera->transform_.rotation_ *= glm::quat(glm::vec3(+1, 0, 0) * angular_speed * Time::DeltaTime());
+    my_camera->transform_.rotation_ *= glm::quat(glm::vec3(+1, 0, 0) * angular_speed * Time::GetDelta());
   });
 
 

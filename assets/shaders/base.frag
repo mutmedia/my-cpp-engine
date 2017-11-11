@@ -30,7 +30,7 @@ float sin01(float t) {
 void main() 
 { 
   vec2 uv = gl_FragCoord.xy/u_screenSize;
-  //gl_FragColor = vec4(uv + vec2(cos01(u_time/10.0), sin01(u_time/10.0)), 0.5, 1.0);
-  gl_FragColor = v_color;
+  gl_FragColor = vec4(uv + vec2(cos01(u_time/10.0), sin01(u_time/10.0)), 0.5, 1.0);
+  //gl_FragColor = v_color;
 }
 

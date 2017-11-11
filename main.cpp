@@ -7,7 +7,8 @@
 #include "game.h"
 #include "input.h"
 #include "mesh.h"
-#include "renderer.h"
+#include "shader.h"
+#include "graphics.h"
 
 
 // STD
@@ -92,15 +93,13 @@ int main() {
     return buffer;
   };
 
-  auto shaderProgram = new ShaderProgram(
+  auto shaderProgram = new Shader(
       fileToSource("assets/shaders/base.vert"),
       fileToSource("assets/shaders/base.frag"));
-
-  GLint attribute_position = glGetAttribLocation(shaderProgram->id, "a_position");
-  GLint attribute_color = glGetAttribLocation(shaderProgram->id, "a_color");
-  GLint uniform_mvp = glGetUniformLocation(shaderProgram->id, "u_mvp");
-  GLint uniform_screenSize = glGetUniformLocation(shaderProgram->id, "u_screenSize");
-  GLint uniform_time = glGetUniformLocation(shaderProgram->id, "u_time");
+      
+  // Initialize graphics lib
+  Graphics::camera = new Camera(45, 1, 0.1f, 100.0f);
+  Graphics::shader = shaderProgram;
 
   bool main_loop_running = true;
 
@@ -149,11 +148,8 @@ int main() {
 
       function<void()> renderFunc = [&] {
 
-        // Creating MVP matrix
-        glm::mat4 ViewProjection = game->main_camera_->GetViewProjectionMatrix();
-
         // Setting shader
-        glUseProgram(shaderProgram->id);
+        glUseProgram(shaderProgram->id());
         GLERRORS("use program");
 
         // Setting configuration
@@ -163,7 +159,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -171,13 +167,12 @@ int main() {
         GLfloat screenSize[] = {
           static_cast<GLfloat>(Window::Instance()->width),
           static_cast<GLfloat>(Window::Instance()->height)};
-        glUniform2fv(uniform_screenSize, 1, screenSize);
+        glUniform2fv(shaderProgram->uniform_screenSize(), 1, screenSize);
         GLERRORS("glUniform2fv");
 
-        glUniform1f(uniform_time, (float)Window::Instance()->FRAME);
+        glUniform1f(shaderProgram->uniform_time(), (float)Window::Instance()->FRAME);
 
-        Renderer::RenderAll(ViewProjection, uniform_mvp);
-
+        game->Draw();
         glDisable(GL_BLEND);
       };
 
