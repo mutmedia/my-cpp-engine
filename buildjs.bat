@@ -6,7 +6,9 @@ events.cpp ^
 game.cpp ^
 glutils.cpp ^
 graphics.cpp ^
-input.cpp ^
+input_manager.cpp ^
+keyboard_input.cpp ^
+mouse_input.cpp ^
 main.cpp ^
 mesh.cpp ^
 shader.cpp ^

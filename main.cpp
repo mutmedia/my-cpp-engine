@@ -5,7 +5,7 @@
 //#include "events.h"
 #include "time.h"
 #include "game.h"
-#include "input.h"
+#include "input_manager.h"
 #include "mesh.h"
 #include "shader.h"
 #include "graphics.h"
@@ -41,7 +41,6 @@ namespace {
   };
 }
 
-
 using namespace std;
 function<void()> game_loop;
 void main_loop() { 
@@ -54,6 +53,8 @@ int main() {
     FAIL("SDL Init");
   }
   SDL_GL_SetSwapInterval(0);
+  // Makes mouse delta always work
+  SDL_SetRelativeMouseMode(SDL_TRUE);
   Window::Initialize("test", 800, 600);
 
   Time::Init(SDL_GetTicks());
@@ -137,10 +138,10 @@ int main() {
       }
 
       Window::Instance()->ProcessEvent(&event);
-      Input::ProcessEvent(&event);
+      InputManager::ProcessEvent(&event);
     }
 
-    Input::Update();
+    InputManager::Update();
     game->Update();
 
     if (Window::Instance()->visible)
