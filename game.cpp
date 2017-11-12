@@ -38,6 +38,9 @@ void Game::Draw() {
   LightRepresentation(glm::vec3(3, 3, 0));
   LightRepresentation(glm::vec3(3, -3, 0));
 
+  Graphics::SetMaterial(glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.5, 0.5, 0.5));
+  Graphics::Cube(glm::vec3(0, 0, 0), quat(), glm::vec3(100, 0.1, 100));
+
   Graphics::PointLight(glm::vec3(3, 3, 0), glm::vec3(1, 1, 1), 5);
 
   Graphics::SetMaterial(glm::vec3(0.5, 0.0, 0.7), glm::vec3(1.0, 0.9, 0.9));
@@ -59,7 +62,7 @@ void Game::Load() {
   my_camera =
       new Camera(45.0f, Window::Instance()->aspect_ratio(), 0.1f, 100.0f);
 
-  my_camera->transform.position = glm::vec3(0, 0, 5);
+  my_camera->transform.position = glm::vec3(0, 1, 5);
   my_camera->transform.rotation = glm::quat(glm::vec3(0, glm::pi<float>(), 0));
 
   Graphics::camera = my_camera;
