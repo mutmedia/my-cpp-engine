@@ -352,7 +352,8 @@ void Graphics::Cube(glm::vec3 position, glm::quat rotation, glm::vec3 scale) {
   }
 
   Graphics::world_matrix = glm::translate(glm::mat4(), position) *
-                           glm::toMat4(rotation) * glm::scale(glm::mat4(), scale);
+                           glm::toMat4(rotation) *
+                           glm::scale(glm::mat4(), scale);
   RenderToCamera([]() { base_cube_mesh->Render(); });
 }
 
@@ -371,11 +372,16 @@ void Graphics::SetMaterial(glm::vec3 diffuse_color) {
   Graphics::SetMaterial(diffuse_color, diffuse_color);
 }
 
-void Graphics::PointLight(glm::vec3 position, glm::vec3 color, float intensity) {
+void Graphics::PointLight(glm::vec3 position, glm::vec3 color,
+                          float intensity) {
   Graphics::lightColor[Graphics::lightCount % MAX_LIGHT_COUNT] =
       color * intensity;
   Graphics::lightPosition[Graphics::lightCount % MAX_LIGHT_COUNT] = position;
   Graphics::lightCount++;
+}
+
+void Graphics::SetClearColor(glm::vec3 color) {
+  glClearColor(color.x, color.y, color.z, 1.f);
 }
 
 // Cleans state variables for next iteration

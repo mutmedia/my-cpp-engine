@@ -3,7 +3,7 @@ set compiler=em++
 set files=^
 camera.cpp ^
 events.cpp ^
-game.cpp ^
+game-mario.cpp ^
 glutils.cpp ^
 graphics.cpp ^
 input_manager.cpp ^
@@ -12,6 +12,7 @@ mouse_input.cpp ^
 main.cpp ^
 mesh.cpp ^
 shader.cpp ^
+scheduler.cpp ^
 time.cpp ^
 window.cpp 
 set std=-std=c++11

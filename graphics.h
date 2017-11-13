@@ -24,6 +24,8 @@ void SetMaterial(glm::vec3 diffuse_color);
 
 void PointLight(glm::vec3 position, glm::vec3 color, float intensity);
 
+void SetClearColor(glm::vec3 color);
+
 void Clear();
 
 struct GraphicsData {
