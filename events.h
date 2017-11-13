@@ -15,15 +15,16 @@ typedef std::vector<Callback> CallbackList;
 
 class EventSystem {
 public:
-    EventSystem();
-    ~EventSystem();
-    void Add(Event e, Callback callback);
-    //void schedule(Event e, Callback callback);
-    //void countdown(Event e, int count, Callback callback)
-    void Fire(Event e);
+  EventSystem();
+  ~EventSystem();
+  void Add(Event e, Callback callback);
+  // void schedule(Event e, Callback callback);
+  // void countdown(Event e, int count, Callback callback)
+  void Fire(Event e);
+
 private:
-    void AddNew(Event e, Callback callback, EventRecurrence recurrence); 
-    std::map<Event, CallbackList> permanent_events_;
+  void AddNew(Event e, Callback callback, EventRecurrence recurrence);
+  std::map<Event, CallbackList> permanent_events_;
 };
 
 #endif

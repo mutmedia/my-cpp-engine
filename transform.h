@@ -6,22 +6,20 @@
 #include "glm/gtx/quaternion.hpp"
 #include "glm/vec3.hpp"
 
-using namespace glm;
-
 class Transform {
 public:
-  Transform(vec3 position = vec3(0.0), quat rotation = quat(),
-            vec3 scale = vec3(1.0))
+  Transform(glm::vec3 position = glm::vec3(0.0),
+            glm::quat rotation = glm::quat(), glm::vec3 scale = glm::vec3(1.0))
       : position(position), rotation(rotation), scale(scale) {}
 
-  inline mat4 ToModelMatrix() {
-    return glm::translate(mat4(), position) * glm::toMat4(rotation) *
-           glm::scale(mat4(), scale);
+  inline glm::mat4 ToModelMatrix() {
+    return glm::translate(glm::mat4(), position) * glm::toMat4(rotation) *
+           glm::scale(glm::mat4(), scale);
   }
 
-  vec3 position;
-  quat rotation;
-  vec3 scale;
+  glm::vec3 position;
+  glm::quat rotation;
+  glm::vec3 scale;
 
 private:
 };

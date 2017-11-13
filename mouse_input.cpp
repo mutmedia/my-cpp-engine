@@ -64,8 +64,7 @@ void MouseInput::BindAction(const char *name, const InputType type,
 }
 
 void MouseInput::BindMovement(
-    const std::function<void(const MouseMovementData * d)> callback) {
-        auto bound_callback = std::bind(callback, &mouse_data_);
-    input_events_.Add(MOUSE_MOVEMENT_EVENT, bound_callback);
-
+    const std::function<void(const MouseMovementData *d)> callback) {
+  auto bound_callback = std::bind(callback, &mouse_data_);
+  input_events_.Add(MOUSE_MOVEMENT_EVENT, bound_callback);
 }

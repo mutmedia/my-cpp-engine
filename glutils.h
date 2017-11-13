@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-void GLERRORS(const char* label);
+void GLERRORS(const char *label);
 
 struct VertexBuffer : nocopy {
   GLuint id;
@@ -16,7 +16,7 @@ struct VertexBuffer : nocopy {
 
 struct GlContext : nocopy {
   SDL_GLContext id;
-  GlContext(SDL_Window* window);
+  GlContext(SDL_Window *window);
   ~GlContext();
 };
 

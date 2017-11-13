@@ -2,7 +2,8 @@
 
 #include "glutils.h"
 
-#define GET_UNIFORM(NAME) uniform_ ## NAME ## _ = glGetUniformLocation(id_, "u_ $$ NAME $$");
+#define GET_UNIFORM(NAME)                                                      \
+  uniform_##NAME##_ = glGetUniformLocation(id_, "u_ $$ NAME $$");
 
 Shader::Shader(const char *vert, const char *frag) {
   id_ = glCreateProgram();
@@ -58,11 +59,14 @@ Shader::Shader(const char *vert, const char *frag) {
   uniform_view_ = glGetUniformLocation(id_, "u_view");
   uniform_projection_ = glGetUniformLocation(id_, "u_projection");
 
-  uniform_material_diffuse_color_ = glGetUniformLocation(id_, "u_material_diffuse_color");
-  uniform_material_specular_color_ = glGetUniformLocation(id_, "u_material_specular_color");
+  uniform_material_diffuse_color_ =
+      glGetUniformLocation(id_, "u_material_diffuse_color");
+  uniform_material_specular_color_ =
+      glGetUniformLocation(id_, "u_material_specular_color");
 
   uniform_lightCount_ = glGetUniformLocation(id_, "u_lightCount");
-  uniform_lightPos_worldspace_ = glGetUniformLocation(id_, "u_lightPos_worldspace");
+  uniform_lightPos_worldspace_ =
+      glGetUniformLocation(id_, "u_lightPos_worldspace");
   uniform_lightColor_ = glGetUniformLocation(id_, "u_lightColor");
 
   /*

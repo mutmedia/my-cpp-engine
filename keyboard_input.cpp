@@ -12,9 +12,7 @@ int KeyTypeToEvent(const int key, const InputType type) {
 }
 } // namespace
 
-
-KeyboardInput::KeyboardInput(SDL_KeyMapping *keymapping,
-                             const int mappingsize)
+KeyboardInput::KeyboardInput(SDL_KeyMapping *keymapping, const int mappingsize)
     : key_mapping_(keymapping), mapping_size_(mappingsize) {
   InputManager::RegisterInputHandler(this);
 }

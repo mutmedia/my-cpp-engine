@@ -5,7 +5,10 @@
 #include "i_input_handler.h"
 #include "input_type.h"
 
-#include "SDL.h"
+#include <SDL.h>
+
+#define MOUSE_MAP(BUTTON, NAME)                                                \
+  { SDL_BUTTON_##BUTTON, NAME }
 
 struct SDL_MouseKeyMapping {
   int key;
@@ -26,7 +29,8 @@ public:
   void BindAction(const char *name, const InputType type,
                   const std::function<void()> callback);
 
-  void BindMovement(const std::function<void(const MouseMovementData * d)> callback);
+  void
+  BindMovement(const std::function<void(const MouseMovementData *d)> callback);
 
   virtual void ProcessEvent(const SDL_Event *e);
   virtual void Update();

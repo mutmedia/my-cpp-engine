@@ -6,7 +6,10 @@
 #include "i_input_handler.h"
 #include "input_type.h"
 
-#include "SDL.h"
+#include <SDL.h>
+
+#define KEYBOARD_MAP(KEY, NAME)                                                \
+  { SDLK_##KEY, NAME }
 
 struct SDL_KeyMapping {
   int key;

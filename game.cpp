@@ -10,23 +10,43 @@
 
 #include <SDL.h>
 
-float mouse_sensitivity = 4.0;
+#include <vector>
+
+float mouse_sensitivity = 2.0;
+
+struct Bullet : Transform {
+  glm::vec3 velocity;
+  bool alive = true;
+};
+
+int MAX_BULLETS = 100;
+int current_bullet_index = 0;
+Bullet *bullets;
+
+// Constants
+float bullet_speed = 50.0;
+float bullet_size = 0.035;
+float linear_speed = 3.0f;
+float angular_speed = 1.0f;
+
+glm::vec3 gun_scale = glm::vec3(0.04, 0.08, 0.8);
+glm::vec3 gun_pos = glm::vec3(0.0, -0.2, 0.5);
 
 // Initialize events
 SDL_KeyMapping keyboard_mapping[9] = {
-    {SDLK_w, "up"},      {SDLK_s, "down"},      {SDLK_a, "left"},
-    {SDLK_d, "right"},   {SDLK_RIGHT, "yaw-"},  {SDLK_LEFT, "yaw+"},
-    {SDLK_UP, "pitch-"}, {SDLK_DOWN, "pitch+"}, {SDLK_SPACE, "action"},
+    KEYBOARD_MAP(w, "up"),         KEYBOARD_MAP(s, "down"),
+    KEYBOARD_MAP(a, "left"),       KEYBOARD_MAP(d, "right"),
+    KEYBOARD_MAP(RIGHT, "yaw-"),   KEYBOARD_MAP(LEFT, "yaw+"),
+    KEYBOARD_MAP(UP, "pitch-"),    KEYBOARD_MAP(DOWN, "pitch+"),
+    KEYBOARD_MAP(SPACE, "action"),
 };
 
 SDL_MouseKeyMapping mouse_mapping[2] = {
-    {SDL_BUTTON_LEFT, "fire"},
-    {SDL_BUTTON_RIGHT, "left"},
+    MOUSE_MAP(LEFT, "fire"),
+    MOUSE_MAP(RIGHT, "left"),
 };
 
 Camera *my_camera;
-float linear_speed = 3.0f;
-float angular_speed = 1.0f;
 
 glm::vec3 cube_position;
 glm::vec3 cube_position2;
@@ -35,11 +55,22 @@ void Game::Update() {
   cube_position.y = 5 * sin(Time::GetTotal() / 10);
   cube_position2.x = 4 + 2 * cos(3 * Time::GetTotal() + 2);
   cube_position2.y = 2 * sin(3 * Time::GetTotal() + 2);
+
+  for (int i = 0; i < MAX_BULLETS; i++) {
+    if (!bullets[i].alive)
+      continue;
+    bullets[i].position += Time::GetDelta() * bullets[i].velocity;
+  }
 }
 
-void LightRepresentation(vec3 position) {
+void LightRepresentation(glm::vec3 position) {
   Graphics::SetMaterial(glm::vec3(1.0));
-  Graphics::Cube(position, quat(), glm::vec3(0.1));
+  Graphics::Cube(position, glm::quat(), glm::vec3(0.1));
+}
+
+void DrawBullet(glm::vec3 position, glm::quat rotation) {
+  Graphics::SetMaterial(glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0));
+  Graphics::Cube(position, glm::quat(), glm::vec3(bullet_size));
 }
 
 void Game::Draw() {
@@ -47,7 +78,7 @@ void Game::Draw() {
   LightRepresentation(glm::vec3(3, -3, 0));
 
   Graphics::SetMaterial(glm::vec3(0.5, 0.5, 0.5), glm::vec3(0.5, 0.5, 0.5));
-  Graphics::Cube(glm::vec3(0, -1, 0), quat(), glm::vec3(100, 0.1, 100));
+  Graphics::Cube(glm::vec3(0, -1, 0), glm::quat(), glm::vec3(100, 0.1, 100));
 
   Graphics::PointLight(glm::vec3(3, 3, 0), glm::vec3(1, 1, 1), 5);
 
@@ -59,13 +90,27 @@ void Game::Draw() {
 
   Graphics::PointLight(glm::vec3(3, -3, 0), glm::vec3(1, 1, 1), 100);
   Graphics::SetMaterial(glm::vec3(0.0, 0.0, 0.9), glm::vec3(0.9, 1.0, 0.7));
-  Graphics::Cube(glm::vec3(8, 0, 0), quat(glm::vec3(Time::GetTotal(), 0, 0)),
+  Graphics::Cube(glm::vec3(8, 0, 0),
+                 glm::quat(glm::vec3(Time::GetTotal(), 0, 0)),
                  glm::vec3(0.05, 100, 1.0));
+
+  Graphics::SetMaterial(glm::vec3(0.5, 0.5, 0.3), glm::vec3(0.1, 0.1, 0.1));
+  Graphics::Cube(my_camera->transform.position +
+                     my_camera->transform.rotation * gun_pos,
+                 my_camera->transform.rotation, gun_scale);
+
+  for (int i = 0; i < MAX_BULLETS; i++) {
+    if (!bullets[i].alive)
+      continue;
+    DrawBullet(bullets[i].position, bullets[i].rotation);
+  }
 }
 
 void Game::Load() {
   KeyboardInput *keyboardInput = new KeyboardInput(keyboard_mapping, 9);
   MouseInput *mouseInput = new MouseInput(mouse_mapping, 2);
+
+  bullets = (Bullet *)malloc(sizeof(Bullet) * MAX_BULLETS);
 
   // Camera stuff
   my_camera =
@@ -97,7 +142,36 @@ void Game::Load() {
                                      Time::GetDelta();
   });
 
-  mouseInput->BindAction("fire", INPUT_DOWN, [&]() { printf("FIRE\n"); });
+  keyboardInput->BindAction("right", INPUT_DOWN, [&]() {
+    //gun_pos += glm::vec3(0.01, 0, 0);
+  });
+  keyboardInput->BindAction("left", INPUT_DOWN, [&]() {
+    //gun_pos -= glm::vec3(0.01, 0, 0);
+  });
+  keyboardInput->BindAction("up", INPUT_DOWN, [&]() {
+    //gun_pos += glm::vec3(0.0, 0.1, 0);
+  });
+  keyboardInput->BindAction("down", INPUT_DOWN, [&]() {
+    //gun_pos -= glm::vec3(0.0, 0.1, 0);
+  });
+  keyboardInput->BindAction("pitch+", INPUT_DOWN, [&]() {
+    gun_scale *= 1.1;
+  });
+  keyboardInput->BindAction("pitch-", INPUT_DOWN, [&]() {
+    gun_scale /= 1.1;
+  });
+
+  mouseInput->BindAction("fire", INPUT_DOWN, [&]() {
+    // New bullet
+    Bullet b;
+    b.position =
+        my_camera->transform.position + my_camera->transform.rotation * (gun_pos + glm::vec3(0.0, 0.0, 1.1 * gun_scale.z));
+    b.rotation = my_camera->transform.rotation;
+    b.velocity =
+        my_camera->transform.rotation * glm::vec3(0, 0, 1) * bullet_speed;
+    bullets[current_bullet_index] = b;
+    current_bullet_index = (current_bullet_index + 1) % MAX_BULLETS;
+  });
 
   mouseInput->BindMovement([&](const MouseMovementData *mouse) {
     my_camera->transform.rotation *=

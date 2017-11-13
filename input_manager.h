@@ -4,7 +4,7 @@
 #include "events.h"
 #include "i_input_handler.h"
 
-union SDL_Event;
+#include <SDL.h>
 
 namespace InputManager {
 void Update();

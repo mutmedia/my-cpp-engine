@@ -6,16 +6,16 @@
 #include "vertex.h"
 
 class Mesh {
-  public:
-    Mesh(const Vertex * vertexdata, int verticessize);
-    ~Mesh();
+public:
+  Mesh(const Vertex *vertexdata, int verticessize);
+  ~Mesh();
 
-    void Render() const;
-  private:
-    const Vertex * vertex_data_;
-    int vertices_size_;
-    GLuint vertex_buffer_;
+  void Render() const;
+
+private:
+  const Vertex *vertex_data_;
+  int vertices_size_;
+  GLuint vertex_buffer_;
 };
 
 #endif
-
