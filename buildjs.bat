@@ -5,6 +5,7 @@ camera.cpp ^
 events.cpp ^
 game-mario.cpp ^
 glutils.cpp ^
+glm_extensions.cpp ^
 graphics.cpp ^
 input_manager.cpp ^
 keyboard_input.cpp ^

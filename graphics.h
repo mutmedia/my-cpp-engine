@@ -24,6 +24,7 @@ void SetMaterial(glm::vec3 diffuse_color);
 
 void PointLight(glm::vec3 position, glm::vec3 color, float intensity);
 
+void SetAmbientLight(glm::vec3 color);
 void SetClearColor(glm::vec3 color);
 
 void Clear();
@@ -46,6 +47,7 @@ extern glm::vec3 material_specular_color;
 extern int lightCount;
 extern glm::vec3 lightColor[];
 extern glm::vec3 lightPosition[];
+extern glm::vec3 ambient_light;
 
 } // namespace Graphics
 

@@ -28,6 +28,8 @@ public:
   GLint uniform_lightPos_worldspace() { return uniform_lightPos_worldspace_; }
   GLint uniform_lightColor() { return uniform_lightColor_; }
 
+  GLint uniform_ambientLight() { return uniform_ambientLight_; }
+
   GLuint id() { return id_; }
 
 private:
@@ -47,6 +49,8 @@ private:
   GLint uniform_lightCount_;
   GLint uniform_lightPos_worldspace_;
   GLint uniform_lightColor_;
+
+  GLint uniform_ambientLight_;
 };
 
 #endif

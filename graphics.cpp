@@ -4,8 +4,6 @@
 #include <stdio.h>
 
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp" // glm::value_ptr
-#include "glm/gtx/quaternion.hpp"
 
 #define MIN(a, b) (a < b ? a : b)
 
@@ -40,6 +38,10 @@ void RenderToCamera(std::function<void()> render_func) {
                 MIN(Graphics::lightCount, MAX_LIGHT_COUNT));
     GLERRORS("uniform light count");
   }
+
+  glUniform3fv(Graphics::shader->uniform_ambientLight(),
+               1,
+               &Graphics::ambient_light[0]);
 
   render_func();
 }
@@ -339,6 +341,7 @@ glm::vec3 Graphics::material_specular_color;
 int Graphics::lightCount = 0;
 glm::vec3 Graphics::lightColor[MAX_LIGHT_COUNT];
 glm::vec3 Graphics::lightPosition[MAX_LIGHT_COUNT];
+glm::vec3 Graphics::ambient_light;
 
 void Graphics::Cube(Transform transform) {
   Graphics::Cube(transform.position, transform.rotation, transform.scale);
@@ -383,6 +386,8 @@ void Graphics::PointLight(glm::vec3 position, glm::vec3 color,
 void Graphics::SetClearColor(glm::vec3 color) {
   glClearColor(color.x, color.y, color.z, 1.f);
 }
+
+void Graphics::SetAmbientLight(glm::vec3 color) {}
 
 // Cleans state variables for next iteration
 void Graphics::Clear() { lightCount = 0; }

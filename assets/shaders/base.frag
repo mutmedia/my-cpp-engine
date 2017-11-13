@@ -29,8 +29,7 @@ uniform vec3 u_material_specular_color;
 uniform lowp int u_lightCount;
 uniform vec3 u_lightColor[MAX_LIGHT_COUNT];
 
-// TODO: make this uniform
-const vec3 ambientLight = vec3(0.1, 0.1, 0.1);
+uniform vec3 ambientLight;
 
 void main() 
 { 

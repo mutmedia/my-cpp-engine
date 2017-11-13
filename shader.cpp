@@ -69,6 +69,8 @@ Shader::Shader(const char *vert, const char *frag) {
       glGetUniformLocation(id_, "u_lightPos_worldspace");
   uniform_lightColor_ = glGetUniformLocation(id_, "u_lightColor");
 
+  uniform_ambientLight_ = glGetUniformLocation(id_, "u_ambientLight");
+
   /*
   GET_UNIFORM(screenSize);
   GET_UNIFORM(time);
