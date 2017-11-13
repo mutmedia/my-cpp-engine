@@ -112,18 +112,22 @@ void Game::Load() {
   keyboardInput->BindAction("up", INPUT_HOLD, [&]() {
     my_camera->transform.rotation *=
         glm::quat(Time::GetDelta() * glm::vec3(1.0, 0.0, 0.0));
+        player.position += glm::vec3(0, 0, +1) * Time::GetDelta() * player.speed;
   });
   keyboardInput->BindAction("down", INPUT_HOLD, [&]() {
     my_camera->transform.rotation *=
         glm::quat(Time::GetDelta() * glm::vec3(-1.0, 0.0, 0.0));
+        player.position += glm::vec3(0, 0, -1) * Time::GetDelta() * player.speed;
   });
   keyboardInput->BindAction("left", INPUT_HOLD, [&]() {
     my_camera->transform.rotation *=
         glm::quat(Time::GetDelta() * glm::vec3(0.0, 0.0, 1.0));
+        player.position += glm::vec3(+1, 0, 1) * Time::GetDelta() * player.speed;
   });
   keyboardInput->BindAction("right", INPUT_HOLD, [&]() {
     my_camera->transform.rotation *=
         glm::quat(Time::GetDelta() * glm::vec3(0.0, 0.0, -1.0));
+        player.position += glm::vec3(-1, 0, 0) * Time::GetDelta() * player.speed;
   });
   keyboardInput->BindAction("cam-cw", INPUT_HOLD, [&]() {
     my_camera->transform.rotation *=
