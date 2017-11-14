@@ -47,6 +47,6 @@ quat quatLookAt(vec3 direction, vec3 up) {
   auto rot2 = rotationBetween(newUp, up);
   printf("rot2 x: %f, y: %f, z: %f, w: %f\n", rot2.x, rot2.y, rot2.z, rot2.w);
 
-  return rot1;
+  return rot2 * rot1;
 }
 } // namespace glm
