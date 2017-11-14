@@ -124,7 +124,7 @@ void Game::Load() {
   Graphics::camera = my_camera;
 
   keyboardInput->BindAction("up", INPUT_HOLD, [&]() {
-    my_camera->transform.position +=
+    my_camera->transform.position += 
         glm::rotate(my_camera->transform.rotation,
                     glm::vec3(0, 0, -1) * linear_speed * Time::GetDelta());
   });
