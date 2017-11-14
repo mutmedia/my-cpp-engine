@@ -39,9 +39,6 @@ void RenderToCamera(std::function<void()> render_func) {
     GLERRORS("uniform light count");
   }
 
-  glUniform3fv(Graphics::shader->uniform_ambientLight(),
-               1,
-               &Graphics::ambient_light[0]);
 
   render_func();
 }
@@ -341,7 +338,8 @@ glm::vec3 Graphics::material_specular_color;
 int Graphics::lightCount = 0;
 glm::vec3 Graphics::lightColor[MAX_LIGHT_COUNT];
 glm::vec3 Graphics::lightPosition[MAX_LIGHT_COUNT];
-glm::vec3 Graphics::ambient_light;
+glm::vec3 Graphics::ambient_light = glm::vec3(1.0, 0.0, 1.0);
+glm::vec3 Graphics::clear_color;
 
 void Graphics::Cube(Transform transform) {
   Graphics::Cube(transform.position, transform.rotation, transform.scale);
@@ -384,10 +382,19 @@ void Graphics::PointLight(glm::vec3 position, glm::vec3 color,
 }
 
 void Graphics::SetClearColor(glm::vec3 color) {
+    if(color == clear_color) return;
+    clear_color = color;
   glClearColor(color.x, color.y, color.z, 1.f);
 }
 
-void Graphics::SetAmbientLight(glm::vec3 color) {}
+void Graphics::SetAmbientLight(glm::vec3 color) {
+    if(color == ambient_light) return;
+    ambient_light = color;
+    glUniform3fv(Graphics::shader->uniform_ambientLight(),
+               1,
+               &color[0]);
+  GLERRORS("glUniform3fv Ambient Light");
+}
 
 // Cleans state variables for next iteration
 void Graphics::Clear() { lightCount = 0; }

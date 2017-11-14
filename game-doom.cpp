@@ -30,7 +30,7 @@ float linear_speed = 3.0f;
 float angular_speed = 1.0f;
 
 glm::vec3 gun_scale = glm::vec3(0.04, 0.08, 0.8);
-glm::vec3 gun_pos = glm::vec3(0.0, -0.2, 0.5);
+glm::vec3 gun_pos = glm::vec3(0.0, -0.2, -0.5);
 
 // Initialize events
 SDL_KeyMapping keyboard_mapping[9] = {
@@ -74,6 +74,7 @@ void DrawBullet(glm::vec3 position, glm::quat rotation) {
 }
 
 void Game::Draw() {
+  Graphics::SetAmbientLight(glm::vec3(0.1));
   LightRepresentation(glm::vec3(3, 3, 0));
   LightRepresentation(glm::vec3(3, -3, 0));
 
@@ -94,9 +95,10 @@ void Game::Draw() {
                  glm::quat(glm::vec3(Time::GetTotal(), 0, 0)),
                  glm::vec3(0.05, 100, 1.0));
 
+  // gun
   Graphics::SetMaterial(glm::vec3(0.5, 0.5, 0.3), glm::vec3(0.1, 0.1, 0.1));
   Graphics::Cube(my_camera->transform.position +
-                     my_camera->transform.rotation * gun_pos,
+                     glm::rotate(my_camera->transform.rotation, gun_pos),
                  my_camera->transform.rotation, gun_scale);
 
   for (int i = 0; i < MAX_BULLETS; i++) {
@@ -116,66 +118,51 @@ void Game::Load() {
   my_camera =
       new Camera(45.0f, Window::Instance()->aspect_ratio(), 0.1f, 100.0f);
 
-  my_camera->transform.position = glm::vec3(0, 1, 5);
-  my_camera->transform.rotation = glm::quat(glm::vec3(0, glm::pi<float>(), 0));
+  my_camera->transform.position = glm::vec3(0, 1, 10);
+  my_camera->transform.rotation = glm::quat(glm::vec3(0, 0, 0));
 
   Graphics::camera = my_camera;
 
   keyboardInput->BindAction("up", INPUT_HOLD, [&]() {
-    my_camera->transform.position += my_camera->transform.rotation *
-                                     glm::vec3(0, 0, +1) * linear_speed *
-                                     Time::GetDelta();
+    my_camera->transform.position +=
+        glm::rotate(my_camera->transform.rotation,
+                    glm::vec3(0, 0, -1) * linear_speed * Time::GetDelta());
   });
   keyboardInput->BindAction("down", INPUT_HOLD, [&]() {
-    my_camera->transform.position += my_camera->transform.rotation *
-                                     glm::vec3(0, 0, -1) * linear_speed *
-                                     Time::GetDelta();
+    my_camera->transform.position +=
+        glm::rotate(my_camera->transform.rotation,
+                    glm::vec3(0, 0, +1) * linear_speed * Time::GetDelta());
   });
   keyboardInput->BindAction("left", INPUT_HOLD, [&]() {
-    my_camera->transform.position += my_camera->transform.rotation *
-                                     glm::vec3(+1, 0, 0) * linear_speed *
-                                     Time::GetDelta();
+    my_camera->transform.position +=
+        glm::rotate(my_camera->transform.rotation,
+                    glm::vec3(-1, 0, 0) * linear_speed * Time::GetDelta());
   });
   keyboardInput->BindAction("right", INPUT_HOLD, [&]() {
-    my_camera->transform.position += my_camera->transform.rotation *
-                                     glm::vec3(-1, 0, 0) * linear_speed *
-                                     Time::GetDelta();
-  });
-
-  keyboardInput->BindAction("right", INPUT_DOWN, [&]() {
-    //gun_pos += glm::vec3(0.01, 0, 0);
-  });
-  keyboardInput->BindAction("left", INPUT_DOWN, [&]() {
-    //gun_pos -= glm::vec3(0.01, 0, 0);
-  });
-  keyboardInput->BindAction("up", INPUT_DOWN, [&]() {
-    //gun_pos += glm::vec3(0.0, 0.1, 0);
-  });
-  keyboardInput->BindAction("down", INPUT_DOWN, [&]() {
-    //gun_pos -= glm::vec3(0.0, 0.1, 0);
-  });
-  keyboardInput->BindAction("pitch+", INPUT_DOWN, [&]() {
-    gun_scale *= 1.1;
-  });
-  keyboardInput->BindAction("pitch-", INPUT_DOWN, [&]() {
-    gun_scale /= 1.1;
+    my_camera->transform.position +=
+        glm::rotate(my_camera->transform.rotation,
+                    glm::vec3(+1, 0, 0) * linear_speed * Time::GetDelta());
   });
 
   mouseInput->BindAction("fire", INPUT_DOWN, [&]() {
     // New bullet
     Bullet b;
     b.position =
-        my_camera->transform.position + my_camera->transform.rotation * (gun_pos + glm::vec3(0.0, 0.0, 1.1 * gun_scale.z));
+        my_camera->transform.position +
+        glm::rotate(my_camera->transform.rotation,
+                    (gun_pos - glm::vec3(0.0, 0.0, 1.1 * gun_scale.z)));
     b.rotation = my_camera->transform.rotation;
-    b.velocity =
-        my_camera->transform.rotation * glm::vec3(0, 0, 1) * bullet_speed;
+    b.velocity = glm::rotate(my_camera->transform.rotation,
+                             glm::vec3(0, 0, -1) * bullet_speed);
     bullets[current_bullet_index] = b;
     current_bullet_index = (current_bullet_index + 1) % MAX_BULLETS;
   });
 
   mouseInput->BindMovement([&](const MouseMovementData *mouse) {
-    my_camera->transform.rotation *=
-        glm::quat(glm::vec3(0, -1, 0) * angular_speed * Time::GetDelta() *
-                  (mouse->dx / mouse_sensitivity));
+    if(mouse->dx > 200) return;
+    my_camera->transform.rotation = glm::rotate(
+        my_camera->transform.rotation,
+        angular_speed * Time::GetDelta() * (-mouse->dx / mouse_sensitivity),
+        glm::vec3(0, 1, 0));
   });
 }

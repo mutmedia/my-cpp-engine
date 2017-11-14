@@ -43,6 +43,8 @@ uniform vec3 u_lightPos_worldspace[MAX_LIGHT_COUNT];
 uniform vec3 u_lightColor[MAX_LIGHT_COUNT];
 uniform lowp int u_lightCount;
 
+uniform vec3 u_ambientLight;
+
 void main()
 {
     gl_Position = u_mvp * vec4(a_position, 1.0);
