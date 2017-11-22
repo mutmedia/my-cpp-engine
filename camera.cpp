@@ -4,17 +4,14 @@
 #include "glm/mat4x4.hpp"
 #include "transform.h"
 
-using namespace glm;
-
-mat4 Camera::projection_matrix() const {
+glm::mat4 Camera::projection_matrix() const {
   // TODO: ortho camera?
-  return perspective(radians(fov), aspect_ratio, near, far);
+  return glm::perspective(glm::radians(fov), aspect_ratio, near, far);
 }
 
-mat4 Camera::view_matrix() const {
+glm::mat4 Camera::view_matrix() const {
 
   // TODO: store results and only recalculate on change?
-  return lookAt(transform.position,
-                transform.position + transform.rotation * vec3(0, 0, 1),
-                transform.rotation * vec3(0, 1, 0));
+  return glm::inverse(glm::translate(glm::mat4(), transform.position) *
+                      glm::mat4_cast(transform.rotation));
 }

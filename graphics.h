@@ -48,6 +48,7 @@ extern int lightCount;
 extern glm::vec3 lightColor[];
 extern glm::vec3 lightPosition[];
 extern glm::vec3 ambient_light;
+extern glm::vec3 clear_color;
 
 } // namespace Graphics
 

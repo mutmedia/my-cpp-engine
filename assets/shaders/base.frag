@@ -29,7 +29,7 @@ uniform vec3 u_material_specular_color;
 uniform lowp int u_lightCount;
 uniform vec3 u_lightColor[MAX_LIGHT_COUNT];
 
-uniform vec3 ambientLight;
+uniform vec3 u_ambientLight;
 
 void main() 
 { 
@@ -50,11 +50,12 @@ void main()
       float specular = clamp( dot(e, r), 0.0, 1.0);
 
       color +=
-        u_material_diffuse_color * ambientLight +
         u_material_diffuse_color * u_lightColor[i] * diffuse / (d * d) +
         u_material_specular_color * u_lightColor[i] * pow(specular, 5.0) / (d * d);
       }
   }
+  color += 
+        u_material_diffuse_color * u_ambientLight;
   gl_FragColor = vec4(color, 1.0);
 }
 
